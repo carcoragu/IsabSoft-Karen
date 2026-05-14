@@ -1574,31 +1574,32 @@ table.pt tbody td{padding:11px 10px;border-bottom:1px solid var(--fondo);}
     <div class="f-card">
       <h3>🧾 Datos de la compra</h3>
       <div class="f-row">
-        <div class="ff"><label>Fecha</label><input type="date" value="2026-05-10"/></div>
-        <div class="ff"><label>Tipo animal</label><select><option>Vacas</option><option>Terneros</option><option>Novillos</option><option>Toros</option></select></div>
+        <div class="ff"><label>Fecha</label><input type="date" value="2026-05-14"/></div>
+        <div class="ff"><label>Tipo animal</label><select><option>Novillos</option><option>Vacas</option><option>Terneros</option><option>Toros</option></select></div>
       </div>
       <div class="f-row">
-        <div class="ff"><label>Cantidad</label><input type="number" value="100"/></div>
-        <div class="ff"><label>Peso prom. (kg)</label><input type="number" value="380"/></div>
+        <div class="ff"><label>Cantidad</label><input type="number" value="35" id="inp-cantidad" oninput="calcTotal()"/></div>
+        <div class="ff"><label>Peso prom. (kg)</label><input type="number" value="280" id="inp-peso" oninput="calcTotal()"/></div>
       </div>
       <div class="f-row">
-        <div class="ff"><label>Precio / kg (Gs.)</label><input type="number" value="1500"/></div>
-        <div class="ff"><label>Total (Gs.)</label><input type="text" value="57.000.000" readonly style="background:#f5f5f5;font-weight:800;color:var(--azul);"/></div>
+        <div class="ff"><label>Precio / kg (Gs.)</label><input type="number" value="4500" id="inp-precio" oninput="calcTotal()"/></div>
+        <div class="ff"><label>Total (Gs.)</label><input type="text" id="inp-total" value="44.100.000" readonly style="background:#f5f5f5;font-weight:800;color:var(--azul);"/></div>
       </div>
+      <div class="ff"><label>Raza / Cruzamiento</label><input type="text" value="Nelore / Brahman / Angus (cruzado)"/></div>
     </div>
     <div class="f-card">
       <h3>🏠 Proveedor</h3>
-      <div class="ff"><label>Nombre</label><input type="text" value="Estancia Norte"/></div>
+      <div class="ff"><label>Nombre</label><input type="text" value="Estancia Ortellado"/></div>
       <div class="f-row">
-        <div class="ff"><label>RUC</label><input type="text" value="5.678.901-2"/></div>
-        <div class="ff"><label>Teléfono</label><input type="text" value="+595 982 111 222"/></div>
+        <div class="ff"><label>RUC</label><input type="text" value="—"/></div>
+        <div class="ff"><label>Teléfono</label><input type="text" value="+595 982 917 000"/></div>
       </div>
     </div>
     <div class="f-card">
       <h3>📦 Ingreso al establecimiento</h3>
       <div class="f-row">
-        <div class="ff"><label>Lote destino</label><select><option>Lote 5</option><option>Lote 1</option><option>Lote 2</option><option>Lote 3</option></select></div>
-        <div class="ff"><label>Fecha ingreso</label><input type="date" value="2026-05-11"/></div>
+        <div class="ff"><label>Lote destino</label><select><option>Lote Karen</option><option>Lote A</option><option>Lote B</option><option>Lote C</option></select></div>
+        <div class="ff"><label>Fecha ingreso</label><input type="date" value="2026-05-14"/></div>
       </div>
     </div>
     <button class="btn-save btn-a" onclick="saveCompra()">✓ Confirmar y registrar compra</button>
@@ -1784,7 +1785,32 @@ async function confirmar(tipo,cant,animal,extras){
 }
 function saveInsem(){alert('✅ Inseminación guardada\n\n• 8 vacas · Lote 4 · Brahman X\n• Sincronizado ✓\n• Diagnóstico: 09/06/2026');go('repro');}
 function saveVenta(){alert('✅ Venta registrada\n\n• 15 novillos · Juan López\n• Gs. 11.340.000 · Sincronizado ✓');go('agro');}
-function saveCompra(){alert('✅ Compra registrada\n\n• 100 vacas · Estancia Norte\n• Gs. 57.000.000 · Lote 5 ✓');go('agro');}
+function saveCompra(){
+  const cant  = parseInt(document.getElementById('inp-cantidad')?.value)||35;
+  const peso  = parseInt(document.getElementById('inp-peso')?.value)||280;
+  const precio= parseInt(document.getElementById('inp-precio')?.value)||4500;
+  const total = (cant*peso*precio).toLocaleString('es-PY');
+  alert(`✅ Compra registrada\n\n• ${cant} novillos · Estancia Ortellado\n• Gs. ${total}\n• Lote Karen ✓\n• Guardado offline — se sincronizará al conectar`);
+  go('agro');
+}
+
+function calcTotal(){
+  const cant  = parseFloat(document.getElementById('inp-cantidad')?.value)||0;
+  const peso  = parseFloat(document.getElementById('inp-peso')?.value)||0;
+  const precio= parseFloat(document.getElementById('inp-precio')?.value)||0;
+  const total = cant*peso*precio;
+  const el    = document.getElementById('inp-total');
+  if(el) el.value = total>0 ? total.toLocaleString('es-PY') : '0';
+}
+
+// ── SERVICE WORKER (offline) ──
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(() => console.log('SW registrado — app disponible offline'))
+      .catch(e => console.warn('SW:', e));
+  });
+}
 </script>
 </body>
 </html>
